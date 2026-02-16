@@ -1,1 +1,40 @@
+name: revenue_intelligence
+version: "1.0.0"
+config-version: 2
+
+profile: revenue_intelligence
+
+model-paths: ["models"]
+analysis-paths: ["analysis"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+seed-paths: ["seeds"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  revenue_intelligence:
+    +materialized: view
+    staging:
+      +schema: STG
+      +materialized: view
+    intermediate:
+      +schema: INT
+      +materialized: view
+    marts:
+      +schema: MART
+      +materialized: table
+      finance:
+        +schema: MART_FINANCE
+        +materialized: table
+      revops:
+        +schema: MART_REVOPS
+        +materialized: table
+      exec:
+        +schema: MART_EXEC
+        +materialized: table
 
