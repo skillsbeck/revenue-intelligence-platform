@@ -1,0 +1,5 @@
+select
+  month,
+  sum(recognized_revenue) as recognized_revenue
+from {{ ref('int_subscription_monthly_mrr') }}
+group by 1
