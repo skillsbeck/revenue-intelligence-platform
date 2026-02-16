@@ -1,0 +1,7 @@
+select
+  customer_id,
+  date_trunc('month', payment_date) as month,
+  sum(payment_amount) as collected_amount
+from {{ ref('stg_billing_payments') }}
+where payment_date is not null
+group by 1,2
