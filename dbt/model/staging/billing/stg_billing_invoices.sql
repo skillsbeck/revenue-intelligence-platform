@@ -1,7 +1,7 @@
 with src as (
   select * from {{ source('raw', 'invoices') }}
 ),
-typed as (
+transform as (
   select
     customer_id,
     invoice_id,
@@ -11,7 +11,7 @@ typed as (
 ),
 deduped as (
   select *
-  from typed
+  from transform
   qualify row_number() over (partition by invoice_id order by invoice_date desc) = 1
 )
 select * from deduped
