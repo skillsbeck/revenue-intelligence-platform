@@ -1,0 +1,39 @@
+with subs as (
+  select
+    customer_id,
+    start_date,
+    end_date,
+    term_months,
+    contract_value,
+    case 
+      when term_months is null or term_months = 0 then null
+      else contract_value / term_months
+    end as base_mrr
+  from {{ ref('stg_billing_subscriptions') }}
+  where start_date is not null and end_date is not null
+),
+date_spine as (
+  select
+    customer_id,
+    date_trunc('month', start_date) as month_start,
+    date_trunc('month', end_date) as month_end,
+    base_mrr
+  from subs
+),
+month_series as (
+  select
+    d.customer_id,
+    dateadd(month, g.seq, d.month_start) as month,
+    d.base_mrr
+  from date_spine d
+  join (
+    select seq4() as seq
+    from table(generator(rowcount => 120))
+  ) g
+    on dateadd(month, g.seq, d.month_start) <= d.month_end
+)
+select
+  customer_id,
+  month,
+  greatest(0, cast(base_mrr as number(18,2))) as recognized_revenue
+from month_series
